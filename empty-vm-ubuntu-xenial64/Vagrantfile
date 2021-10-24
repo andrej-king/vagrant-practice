@@ -1,0 +1,29 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Empty VM
+
+VAGRANT_BOX = 'ubuntu/xenial64'
+VM_NAME = 'practiceVagrant'
+VM_USER = 'andrey'
+
+Vagrant.configure("2") do |config|
+
+  # Vagrant box from Hashicorp
+  config.vm.box = VAGRANT_BOX
+
+  config.vm.define VM_NAME
+
+  # Actual machine name
+  config.vm.hostname = VM_NAME
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = VM_NAME
+    vb.memory = 2048
+  end
+
+  # Update system
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo apt-get update && apt-get upgrade -y
+  SHELL
+end
