@@ -1,0 +1,60 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# ubuntu/focal64 (ubuntu 20.04)
+nodes = [
+  { :hostname => 'machine1', :ip => '10.245.1.222', :memory => 8192, :cpu => 2, :boxname => "ubuntu/focal64" }
+]
+
+$script = <<-SCRIPT
+apt-get update -y && apt-get upgrade -y
+sudo apt-get install ubuntu-desktop -y
+sudo apt install git -y
+
+# docker
+sudo apt-get install -y \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo \
+"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+$(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+sudo systemctl status docker
+
+#Executing the Docker Command Without Sudo
+sudo usermod -aG docker ${USER}
+su - ${USER}
+groups
+docker ps
+
+#install docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+SCRIPT
+
+
+Vagrant.configure("2") do |config|
+  nodes.each do |node|
+    config.vm.box_check_update = false
+    config.vbguest.auto_update = false
+    # Optional - enlarge disk (will also convert the format from VMDK to VDI):
+    config.disksize.size = "30GB"
+    config.vm.define node[:hostname] do |nodeconfig|
+      nodeconfig.vm.box = node[:boxname]
+      nodeconfig.vm.hostname = node[:hostname]
+      nodeconfig.vm.provision "shell", inline: $script            # set var script
+      nodeconfig.vm.network :private_network, ip: node[:ip]
+      nodeconfig.vm.provider :virtualbox do |vb|
+        # Display the VirtualBox GUI when booting the machine
+        vb.gui = true
+        vb.memory = node[:memory]
+        vb.cpus = node[:cpu]
+      end
+    end
+  end
+end

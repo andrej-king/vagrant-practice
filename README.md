@@ -2,6 +2,7 @@
 `vagrant init` Init Vagrantfile \
 `vagrant status` Check vm status. \
 `vagrant up` Create and start. \
+`vagrant reload` Restart. \
 `vagrant suspend` VM Pause. \
 `vagrant halt` VM shutdown. \
 `vagrant destroy -f` Forse stop and delete VM.
@@ -19,3 +20,10 @@
 `vagrant box <param> -h` Parameter list, where <param> can be: <span style="color: #10a006">add, list, outdated, prune, remove, repackage, update</span> \
 `vagrant box add --provider virtualbox centos/7` Download centos / 7 for vm virtualbox \
 `vagrant box list` List of downloaded os \
+
+### Plugins
+`vagrant plugin install <plugin name>` Install command. \
+
+Useful plugins: \
+`vagrant-disksize` use `config.disksize.size = "25GB"` \
+`vagrant-vbguest`
